@@ -1,0 +1,37 @@
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{code}[2026/10/22 v1.0 Custom code environment]
+
+\RequirePackage{listings}
+\RequirePackage{xcolor}
+
+% Define colors
+\definecolor{codebackground}{RGB}{248,249,251}
+\definecolor{codeframe}{RGB}{190,195,205}
+
+% Define listing style
+\lstdefinestyle{codeStyle}{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebackground},
+    frame=single,
+    rulecolor=\color{codeframe},
+    framerule=0.5pt,
+    numbers=none,
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false,
+    columns=fullflexible,
+    keepspaces=true,
+    tabsize=4,
+    xleftmargin=5pt,
+    xrightmargin=5pt,
+    framexleftmargin=5pt,
+    framexrightmargin=5pt
+}
+
+% Define custom code environment
+\lstnewenvironment{code}[1][]{
+    \lstset{style=codeStyle,#1}
+}{}
+
+\endinput
