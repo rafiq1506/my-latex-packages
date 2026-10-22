@@ -1,179 +1,119 @@
 # My LaTeX Packages
 
-A collection of custom LaTeX packages and installation utilities developed and maintained by [rafiq1506](https://github.com/rafiq1506).
+Custom LaTeX packages and installation utilities for Windows, maintained by [rafiq1506](https://github.com/rafiq1506).
 
-This repository provides tools for extending LaTeX functionality and simplifying the installation of custom packages on Windows.
+This repository currently provides **`urlfigure` v1.3**, a LaTeX package that downloads and inserts images from online URLs, including publicly accessible Google Drive links.
 
-## 📦 Available Package: `urlfigure` v1.3
+## ✨ Features
 
-**`urlfigure`** is a custom LaTeX package that allows users to insert images directly from online URLs and publicly accessible Google Drive sharing links without manually downloading and managing image files.
+- Insert online images with `\urlimage[WIDTH]{URL}`.
+- Support for publicly accessible Google Drive image links.
+- Automatic JPEG, PNG, and PDF format detection.
+- Cache downloaded images to avoid repeated downloads when the URL is unchanged.
+- Store images in a `urlfigure-images/` folder and URL metadata in its hidden `.metadata/` subfolder.
+- Clean up temporary downloader files after successful processing.
+- Use ordinary LaTeX captions, labels, and cross-references.
+- Install and update the package using the PowerShell-based `latex-install` utility.
 
-The package automatically downloads supported images during compilation, identifies their formats, caches downloaded images for future use, and integrates them into numbered LaTeX figures.
+## 🖥️ Requirements
 
-### ✨ Key Features
+- Windows 10 or Windows 11.
+- TeX Live (tested with TeX Live 2026).
+- PDFLaTeX.
+- Windows PowerShell 5.1 or later.
+- Internet access when downloading new images.
+- **Unrestricted `--shell-escape` enabled for trusted documents.**
 
-- **Direct URL images:** Insert online images using `\urlimage[WIDTH]{URL}`.
-- **Google Drive integration:** Supports publicly accessible Google Drive image-sharing links.
-- **Automatic image downloading:** Retrieves images during LaTeX compilation.
-- **Format detection:** Supports JPEG, PNG, and PDF images.
-- **Smart image caching:** Avoids downloading unchanged images repeatedly.
-- **Organized storage:** Stores images in a dedicated `urlfigure-images` directory.
-- **Hidden metadata:** Keeps caching information inside a hidden `.metadata` folder.
-- **Automatic cleanup:** Removes temporary image metadata files after successful inclusion.
-- **Captions and references:** Supports `\caption`, `\label`, and `\ref`.
-- **Easy installation:** Install or update the package using the `latex-install` PowerShell command.
-- **Windows compatibility:** Designed for TeX Live 2026 and PDFLaTeX on Windows 10/11.
+The LaTeX package may require common packages such as `graphicx`, `float`, `shellesc`, and `environ`, depending on the installed `urlfigure.sty` version. TeX Live typically provides these.
 
----
+> **Platform note:** This version uses a Windows PowerShell downloader. macOS and Linux support is not currently established.
 
-## 🖥️ System Requirements
+## 📁 Repository files
 
-| Requirement | Details |
-|---|---|
-| Operating system | Windows 10 / Windows 11 |
-| LaTeX distribution | TeX Live 2026 |
-| Compiler | PDFLaTeX |
-| PowerShell | Windows PowerShell 5.1 or later |
-| Internet connection | Required for first-time image downloads |
-| Shell escape | Must be enabled |
-| Image formats | JPEG, PNG, PDF |
+| File | Purpose |
+| --- | --- |
+| `README.md` | Documentation |
+| `latex-install.ps1` | Package installation/update utility |
+| `setup-latex-install.ps1` | One-time setup of the `latex-install` command |
+| `urlfigure.sty` | LaTeX package |
+| `urlfigure-fetch-v13.ps1` | Image downloader and cache manager |
+| `main.tex` *(optional)* | Example document, if retained in the repository |
 
-### Required LaTeX Packages
-
-The following packages must be installed:
-
-- `graphicx`
-- `float`
-- `shellesc`
-- `environ`
-
-These packages are commonly available in TeX Live.
-
-> **Note:** The current implementation is designed for Windows. macOS and Linux compatibility has not been established.
-
----
+The older `urlfigure-fetch-v12.ps1` is not required by the v1.3 package.
 
 ## 🚀 Installation
 
-### Method 1: Using the Custom Installer (Recommended)
+### Option A: Install using `latex-install` (recommended)
 
-If you have already configured the `latex-install` command, open Windows PowerShell and run:
-
-```powershell
-latex-install urlfigure -Force
-```
-
-This installs the latest package files from the repository.
-
-Verify the installation:
-
-```powershell
-latex-install urlfigure -Verify
-```
-
-### First-Time Installer Setup
-
-For first-time installation, download these two files from the repository:
-
-- [latex-install.ps1](https://github.com/rafiq1506/my-latex-packages/blob/main/latex-install.ps1)
-- [setup-latex-install.ps1](https://github.com/rafiq1506/my-latex-packages/blob/main/setup-latex-install.ps1)
-
-Place both files in the same folder.
-
-Open Windows PowerShell in that folder and execute:
-
-```powershell
-.\setup-latex-install.ps1
-```
-
-If script execution is restricted, review the scripts and your PowerShell execution policy before proceeding.
-
-After successful setup, close PowerShell and open a new PowerShell window.
-
-Now install the package:
-
-```powershell
-latex-install urlfigure
-```
-
-To update an existing installation:
+If the `latex-install` command is already configured, open **Windows PowerShell** and run:
 
 ```powershell
 latex-install urlfigure -Force
 ```
 
-To verify:
+To check the installation, locate the installed files:
 
 ```powershell
-latex-install urlfigure -Verify
+kpsewhich urlfigure.sty
+kpsewhich -format=tex urlfigure-fetch-v13.ps1
 ```
 
-### Refreshing the Installer
+Both commands should return a valid file path.
 
-If your installed `latex-install` command is outdated, you can load the latest installer from GitHub into the current PowerShell session:
+### Option B: First-time setup
 
-```powershell
-$script = Invoke-RestMethod "https://raw.githubusercontent.com/rafiq1506/my-latex-packages/main/latex-install.ps1"
-Invoke-Expression $script
-```
+1. Download [`setup-latex-install.ps1`](https://github.com/rafiq1506/my-latex-packages/blob/main/setup-latex-install.ps1) and [`latex-install.ps1`](https://github.com/rafiq1506/my-latex-packages/blob/main/latex-install.ps1).
+2. Save both files in the same folder.
+3. Open **Windows PowerShell** in that folder.
+4. Review the scripts, then run:
 
-Then run:
+   ```powershell
+   .\setup-latex-install.ps1
+   ```
 
-```powershell
-latex-install urlfigure -Force
-```
+5. Follow the setup script's prompts, if any. Open a new PowerShell session if instructed.
+6. Install the package:
 
-**Security:** Review remote scripts before executing them.
+   ```powershell
+   latex-install urlfigure -Force
+   ```
 
----
+If PowerShell blocks script execution, review your organization's execution policy before making any changes. Avoid disabling script security globally merely to install this package.
 
-## 🔧 Manual Installation
+### Option C: Manual installation
 
-If you prefer to install the package manually, download:
+Download these two files:
 
-1. `urlfigure.sty`
-2. `urlfigure-fetch-v13.ps1`
+- [`urlfigure.sty`](https://github.com/rafiq1506/my-latex-packages/blob/main/urlfigure.sty)
+- [`urlfigure-fetch-v13.ps1`](https://github.com/rafiq1506/my-latex-packages/blob/main/urlfigure-fetch-v13.ps1)
 
-Place both files inside your personal TeX directory.
-
-Example:
+Place them in the same directory under your personal TeX tree, for example:
 
 ```text
 C:\Users\YOUR_USERNAME\texmf\tex\latex\urlfigure\
-│
 ├── urlfigure.sty
 └── urlfigure-fetch-v13.ps1
 ```
 
-To find your actual personal TeX directory:
+Find your actual personal TeX directory with:
 
 ```powershell
 kpsewhich -var-value=TEXMFHOME
 ```
 
-Verify that LaTeX can locate the package:
+Verify that TeX Live can find both files:
 
 ```powershell
 kpsewhich urlfigure.sty
-```
-
-Verify the downloader:
-
-```powershell
 kpsewhich -format=tex urlfigure-fetch-v13.ps1
 ```
 
-Both commands should return valid file paths.
+## 📖 Quick start
 
----
-
-## 📖 Quick Start
-
-Create a file named `main.tex` and insert the following code:
+Create `main.tex`:
 
 ```latex
 \documentclass[12pt,a4paper]{article}
-
 \usepackage{urlfigure}
 
 \begin{document}
@@ -192,56 +132,111 @@ Create a file named `main.tex` and insert the following code:
     \urlimage[0.6\textwidth]{https://drive.google.com/file/d/1mklHGFX0EypgrwZWOJt_hAjtBvLdUbxI/view?usp=sharing}
 \end{urlfigure}
 
-Figure~\ref{fig:kitten} shows a beautiful kitten.
-
+Figure~\ref{fig:kitten} shows the kitten.
 Figure~\ref{fig:track} shows the tracking journey.
 
 \end{document}
 ```
 
-### Compile the Document
-
-Open PowerShell in the folder containing `main.tex`.
-
-Run:
+Open PowerShell in the folder containing `main.tex`, then run:
 
 ```powershell
 pdflatex.exe --shell-escape --interaction=errorstopmode main.tex
-```
-
-Compile a second time to resolve cross-references:
-
-```powershell
 pdflatex.exe --shell-escape --interaction=errorstopmode main.tex
 ```
 
-Your generated PDF should contain the downloaded images with their captions and figure numbers.
+The second compilation resolves cross-references.
 
-### Using WinEdt
+## 🛠️ WinEdt: Enable `--shell-escape` for PDFLaTeX
 
-When compiling through WinEdt, ensure that the PDFLaTeX command includes:
+**This setting is required** when compiling a `urlfigure` document through WinEdt. The package calls `urlfigure-fetch-v13.ps1` to download and cache images. Without unrestricted shell escape, that external command cannot run as intended.
+
+### Step 1 — Open Execution Modes
+
+1. Launch **WinEdt**.
+2. Open **Options → Execution Modes**.
+3. Find the **PDFLaTeX** (or **PDF TeX**) compiler settings. Names and tab placement can vary between WinEdt versions.
+
+### Step 2 — Add the compiler switch
+
+1. Find the **Switches**, **Command Line**, or equivalent arguments field for **PDFLaTeX**.
+2. Add the following option, separated from any existing options by a space:
+
+   ```text
+   --shell-escape
+   ```
+
+3. **Keep your existing options** such as `--synctex=-1` and `--interaction=errorstopmode`.
+
+For example, if your existing switches are:
 
 ```text
---shell-escape
+--synctex=-1 --interaction=errorstopmode
 ```
 
-For example:
+change them to:
+
+```text
+--shell-escape --synctex=-1 --interaction=errorstopmode
+```
+
+The resulting PDFLaTeX invocation may resemble:
 
 ```powershell
-pdflatex.exe --shell-escape --interaction=errorstopmode --synctex=-1 main.tex
+pdflatex.exe --shell-escape --synctex=-1 --interaction=errorstopmode main.tex
 ```
 
----
+> **Important:** Enter only the additional switch in the compiler's switches/arguments field; do not replace the executable path or the whole WinEdt command definition. Configure the tool you actually use to compile (PDFLaTeX rather than a different build profile).
 
-## 📝 Command Reference
+### Step 3 — Save and compile
 
-### Basic Syntax
+1. Click **OK**, **Apply**, or **Save**, as appropriate for your WinEdt version.
+2. Open your LaTeX document.
+3. Compile with the configured **PDFLaTeX** command.
+
+### Step 4 — Verify that shell escape is enabled
+
+Create `shell-escape-test.tex`:
 
 ```latex
-\urlimage[WIDTH]{URL}
+\documentclass{article}
+\begin{document}
+
+\ifnum\pdfshellescape=1
+    Shell escape is fully enabled.
+\else
+    Shell escape is NOT fully enabled.
+\fi
+
+\end{document}
 ```
 
-### Complete Figure Example
+Compile it with **PDFLaTeX in WinEdt**. The PDF should display:
+
+```text
+Shell escape is fully enabled.
+```
+
+If it says shell escape is not fully enabled, check the WinEdt switches again and confirm that you are using the PDFLaTeX profile you edited.
+
+### Alternative: Compile outside WinEdt
+
+You can compile directly in PowerShell without changing WinEdt settings:
+
+```powershell
+pdflatex.exe --shell-escape --interaction=errorstopmode main.tex
+```
+
+> **Security:** `--shell-escape` permits LaTeX to execute external commands. Use it only for trusted `.tex` files and packages; disable it for untrusted documents. The shell-escape option does not itself make arbitrary downloaded content safe.
+
+## 📝 Usage reference
+
+```latex
+\urlimage{https://example.com/image.jpg}
+\urlimage[0.6\textwidth]{https://example.com/image.jpg}
+```
+
+A complete numbered figure:
 
 ```latex
 \begin{urlfigure}
@@ -249,427 +244,153 @@ pdflatex.exe --shell-escape --interaction=errorstopmode --synctex=-1 main.tex
     \label{fig:example}
     \urlimage[0.6\textwidth]{https://example.com/image.jpg}
 \end{urlfigure}
+
+Figure~\ref{fig:example} shows the example.
 ```
 
-### Available Commands
+Use the optional width argument to control image size, for example `0.3\textwidth`, `0.5\textwidth`, or `\textwidth`.
 
-| Command | Description |
-|---|---|
-| `\begin{urlfigure}` | Begins a figure environment. |
-| `\end{urlfigure}` | Ends a figure environment. |
-| `\urlimage{URL}` | Includes an image at the default width of `0.5\textwidth`. |
-| `\urlimage[WIDTH]{URL}` | Includes an image at the specified width. |
-| `\caption{TEXT}` | Adds a figure caption. |
-| `\label{KEY}` | Defines a reference label. |
-| `\ref{KEY}` | References a numbered figure. |
+## ☁️ Google Drive images
 
-### Image Width Examples
-
-```latex
-\urlimage[0.3\textwidth]{URL}
-```
-
-```latex
-\urlimage[0.5\textwidth]{URL}
-```
-
-```latex
-\urlimage[0.8\textwidth]{URL}
-```
-
-```latex
-\urlimage[\textwidth]{URL}
-```
-
----
-
-## ☁️ Google Drive Image Support
-
-The package supports publicly accessible Google Drive images.
-
-### Standard Google Drive Sharing Link
+The downloader recognizes supported public Google Drive sharing URLs, for example:
 
 ```latex
 \urlimage[0.6\textwidth]{https://drive.google.com/file/d/FILE_ID/view?usp=sharing}
 ```
 
-### Direct Image-Serving Link
+To prepare a file:
 
-```latex
-\urlimage[0.6\textwidth]{https://lh3.googleusercontent.com/d/FILE_ID}
-```
+1. Upload an image to Google Drive.
+2. Select **Share**.
+3. Set **General access** to **Anyone with the link** and permission to **Viewer**.
+4. Copy the link and use it in `\urlimage`.
 
-### How to Share a Google Drive Image
+The downloader tries alternative Google Drive image-serving/download endpoints. Google may restrict some files or requests; public access does not guarantee that every Drive link will work.
 
-1. Upload the image to Google Drive.
-2. Right-click the image and select **Share**.
-3. Under **General access**, choose **Anyone with the link**.
-4. Select **Viewer** permission.
-5. Copy the sharing link.
-6. Paste the URL inside `\urlimage`.
+## ⚡ Image caching
 
-The downloader attempts to retrieve the image using supported Google Drive endpoints.
+When the package first encounters an image URL, the PowerShell helper downloads it, checks its signature to identify JPEG, PNG, or PDF, and saves the result in `urlfigure-images/`.
 
-**Important:** Google Drive files requiring authentication may not work. Public sharing does not guarantee successful downloading in every case.
+On later compilations, it reuses the cached file if the stored source URL matches and the cached file has the expected format. This means **a remote image changed without a URL change will not necessarily refresh automatically**.
 
----
+To refresh a specific image, remove its cached image and matching `.cache` metadata file. To refresh everything, delete the generated `urlfigure-images/` directory and compile again.
 
-## ⚡ Smart Image Caching
-
-Starting with v1.3, `urlfigure` supports automatic image caching.
-
-### First Compilation
-
-When an image URL is encountered for the first time:
-
-1. The downloader retrieves the image.
-2. Its actual file format is detected.
-3. The image is saved inside `urlfigure-images`.
-4. The source URL is recorded in cache metadata.
-5. The image is included in the LaTeX document.
-
-### Subsequent Compilations
-
-During subsequent compilations:
-
-1. The downloader checks whether the image exists.
-2. It compares the stored URL with the current URL.
-3. It validates the cached image format.
-4. If the checks succeed, the cached image is reused.
-
-This reduces unnecessary downloads and improves compilation efficiency.
-
-### Refreshing Cached Images
-
-If an image changes online but its URL remains unchanged, the cached copy may become outdated.
-
-To force a new download, delete the relevant cached image and its associated `.cache` file.
-
-Alternatively, delete the entire `urlfigure-images` folder to refresh all images during the next compilation.
-
----
-
-## 📂 Generated Folder Structure
-
-When you compile a LaTeX document containing two remote images, the project directory may look like:
+Example generated files:
 
 ```text
 My-LaTeX-Project/
-│
 ├── main.tex
 ├── main.pdf
 ├── main.aux
 ├── main.log
-├── main.synctex
-│
 └── urlfigure-images/
-    │
     ├── urlimage-1.jpg
-    ├── urlimage-2.jpg
-    │
-    └── .metadata/              [Hidden Folder]
+    ├── urlimage-2.png
+    └── .metadata/              (hidden on Windows)
         ├── urlimage-1.cache
         └── urlimage-2.cache
 ```
 
-### File Descriptions
-
-| File | Purpose |
-|---|---|
-| `main.tex` | Main LaTeX source file |
-| `main.pdf` | Compiled PDF |
-| `main.aux` | LaTeX cross-reference information |
-| `main.log` | Compilation log |
-| `urlimage-1.jpg` | Downloaded image |
-| `urlimage-2.jpg` | Downloaded image |
-| `.metadata/` | Hidden folder containing cache metadata |
-| `urlimage-1.cache` | Stores the original URL of the first image |
-| `urlimage-2.cache` | Stores the original URL of the second image |
-
-The `.metadata` folder is automatically marked as hidden on Windows.
-
-**Note:** The actual image extensions depend on the detected formats. Downloaded files may be JPEG, PNG, or PDF.
-
----
-
-## 🧹 Automatic Cleanup
-
-Version 1.3 improves temporary-file management.
-
-The package uses temporary metadata files such as:
-
-```text
-urlimage-1.tex
-urlimage-2.tex
-```
-
-These files communicate the downloaded image filenames to LaTeX.
-
-With the updated `urlfigure.sty`, the temporary `.tex` metadata files are deleted after successful image inclusion.
-
-The PowerShell downloader also removes temporary `.download` files after execution.
-
-The cached images and their `.cache` metadata are preserved for future compilations.
-
----
+The helper also creates short-lived `urlimage-N.tex` status files that tell LaTeX which image to include. The updated package removes these after successful inclusion; temporary `.download` files are also cleaned up. If compilation is interrupted, temporary files may remain.
 
 ## 🔍 Troubleshooting
 
-### 1. `I can't find file 'main.tex'`
+### `Image download failed for urlimage-N`
 
-This error indicates that PDFLaTeX cannot locate the requested source file.
+- Check that the URL points to a supported, publicly accessible JPEG, PNG, or PDF image.
+- Ensure the internet connection works.
+- Confirm PDFLaTeX was started with `--shell-escape`.
+- Confirm TeX Live can locate the helper:
 
-Check your current directory:
+  ```powershell
+  kpsewhich -format=tex urlfigure-fetch-v13.ps1
+  ```
 
-```powershell
-Get-Location
-```
+- Review the PDFLaTeX log and any PowerShell error output.
 
-List available TeX files:
+### `Get-Item : Could not find item ...\.metadata`
 
-```powershell
-dir *.tex
-```
-
-Navigate to the correct directory:
-
-```powershell
-cd "D:\YourFolder"
-```
-
-Then compile:
-
-```powershell
-pdflatex.exe --shell-escape main.tex
-```
-
-Make sure the file is actually named `main.tex`, not `main.txt`.
-
-### 2. `Image download failed for urlimage-N`
-
-Possible causes include:
-
-- Invalid image URL.
-- Internet connectivity problems.
-- Google Drive access restrictions.
-- Unsupported image format.
-- Missing PowerShell helper.
-- Disabled shell escape.
-- PowerShell execution errors.
-
-Verify the package:
-
-```powershell
-kpsewhich urlfigure.sty
-```
-
-Verify the downloader:
-
-```powershell
-kpsewhich -format=tex urlfigure-fetch-v13.ps1
-```
-
-Ensure that both files are installed correctly.
-
-### 3. PowerShell Cannot Find `.metadata`
-
-If the downloader reports:
-
-```text
-Get-Item : Could not find item ...\.metadata
-```
-
-ensure that the installed `urlfigure-fetch-v13.ps1` uses:
+Older installed copies of the downloader could fail when accessing the hidden metadata folder. The corrected helper includes:
 
 ```powershell
 $folder = Get-Item -LiteralPath $metadataDir -Force -ErrorAction Stop
 ```
 
-The `-Force` parameter allows PowerShell to access the hidden metadata folder.
-
-Reinstall the latest package:
+Reinstall the updated helper:
 
 ```powershell
 latex-install urlfigure -Force
 ```
 
-### 4. Images Are Not Updating
+Check the installed file:
 
-The package caches downloaded images.
+```powershell
+$helper = kpsewhich -format=tex urlfigure-fetch-v13.ps1
+Select-String -Path $helper -Pattern 'Get-Item -LiteralPath'
+```
 
-If an image changes at the same URL, delete its cached image and associated `.cache` file.
+### `I can't find file 'main.tex'`
 
-Compile again to download the updated image.
+Make sure PowerShell is in the directory containing the document:
 
-### 5. Figure References Display `??`
+```powershell
+Get-Location
+dir *.tex
+```
 
-Compile twice:
+Then compile again from the correct directory.
+
+### Figure references show `??`
+
+Compile twice so LaTeX can resolve labels:
 
 ```powershell
 pdflatex.exe --shell-escape main.tex
 pdflatex.exe --shell-escape main.tex
 ```
 
-LaTeX requires another compilation to resolve cross-references.
+### Images do not update
 
-### 6. Package Updates Are Not Reflected
+Remove the affected cached image and its corresponding `.cache` file, or delete the entire `urlfigure-images/` directory to rebuild the cache.
 
-Check which package file TeX Live is using:
+### WinEdt still does not download images
 
-```powershell
-kpsewhich urlfigure.sty
-```
+Confirm that **the exact build command you are running** has `--shell-escape` enabled. Test using `shell-escape-test.tex` from the WinEdt section. A setting applied to PDFLaTeX may not affect a separate PDFTeXify or other build profile.
 
-Check the installed PowerShell helper:
+### Old `.url` Internet Shortcut files appear
 
-```powershell
-kpsewhich -format=tex urlfigure-fetch-v13.ps1
-```
+Older helper versions stored cache information in `.url` files. The v1.3 helper uses `.cache` files in a hidden `.metadata/` folder. After confirming that v1.3 works, obsolete `.url` files can be removed.
 
-Update the installation:
+## 🔐 Security and limitations
 
-```powershell
-latex-install urlfigure -Force
-```
+- Compile **only trusted documents** with unrestricted `--shell-escape`.
+- Review installer scripts before running them, especially scripts fetched from the internet.
+- Use trusted image sources; image signature checks are not a security scanner.
+- Remote URLs can fail because of access controls, rate limits, redirects, or network problems.
+- The current downloader recognizes JPEG, PNG, and PDF signatures; formats such as SVG and WebP are not supported by this implementation.
+- The package uses PowerShell and is intended for Windows. Other operating systems are not tested.
 
-If necessary, refresh the installer from GitHub before reinstalling.
-
-### 7. Internet Shortcut Files Appear in the Image Folder
-
-Older versions of the downloader stored source URLs using `.url` files.
-
-Windows identifies these as Internet Shortcuts.
-
-The updated downloader uses `.cache` files stored inside a hidden `.metadata` folder.
-
-After confirming that the updated package works, obsolete `.url` files from the older implementation may be removed.
-
-### 8. Unsupported Image Format
-
-The downloader currently supports:
-
-- JPEG
-- PNG
-- PDF
-
-HTML webpages, authentication pages, and unsupported image formats are rejected.
-
-For best results, use publicly accessible direct image URLs.
-
----
-
-## 🔐 Security Notes
-
-The package requires `--shell-escape` to execute the PowerShell downloader.
-
-Shell escape allows LaTeX to run external commands, so it should only be enabled when compiling trusted documents.
-
-Additional precautions:
-
-- Review PowerShell installation scripts before executing them.
-- Use trusted image URLs.
-- Avoid compiling untrusted LaTeX documents with unrestricted shell escape.
-- Be aware that URLs containing special shell characters may not be handled safely by the current command interface.
-- Downloaded image signature validation does not guarantee that a file is harmless.
-
----
-
-## 📁 Repository Structure
-
-The recommended repository structure is:
-
-```text
-my-latex-packages/
-│
-├── README.md
-│
-├── latex-install.ps1
-│
-├── setup-latex-install.ps1
-│
-├── urlfigure.sty
-│
-├── urlfigure-fetch-v13.ps1
-│
-└── main.tex                 [Optional Example]
-```
-
-### Repository Files
-
-| File | Description |
-|---|---|
-| `README.md` | Package documentation |
-| `latex-install.ps1` | Installs and updates custom LaTeX packages |
-| `setup-latex-install.ps1` | Configures the custom installer command |
-| `urlfigure.sty` | Main LaTeX package |
-| `urlfigure-fetch-v13.ps1` | PowerShell image downloader and cache manager |
-| `main.tex` | Optional demonstration document |
-
-The obsolete `urlfigure-fetch-v12.ps1` is not required for v1.3.
-
----
-
-## 🆕 Version History
+## 🆕 Version history
 
 ### v1.3 — October 2026
 
-- Added automatic image caching.
-- Introduced a dedicated image storage directory.
-- Added hidden `.metadata` folder for caching information.
-- Replaced `.url` metadata with `.cache` files.
-- Separated the PowerShell downloader from the LaTeX package.
-- Removed automatic generation of the old PowerShell helper.
-- Improved temporary-file cleanup.
-- Added installation and verification support for the external downloader.
-- Improved Windows PowerShell compatibility.
-- Updated documentation and troubleshooting instructions.
+- Added a dedicated `urlfigure-images/` image cache.
+- Added a hidden `.metadata/` directory with `.cache` URL metadata.
+- Added cache reuse when the source URL is unchanged and the cached format is valid.
+- Added cleanup of temporary download and LaTeX status files.
+- Updated the external PowerShell downloader to `urlfigure-fetch-v13.ps1`.
+- Fixed access to hidden metadata using `Get-Item -Force`.
+- Expanded installation and WinEdt troubleshooting documentation.
 
-### v1.2
+### v1.2 — Previous version
 
-- Added support for ordinary web image URLs.
-- Added publicly accessible Google Drive sharing-link support.
-- Implemented JPEG, PNG, and PDF detection.
-- Supported numbered figures, captions, labels, and references.
-- Used an embedded PowerShell downloader.
-
----
-
-## 📌 Project Status
-
-**Current version:** `urlfigure` v1.3
-
-**Platform:** Windows 10/11
-
-**LaTeX distribution:** TeX Live 2026
-
-**Compiler:** PDFLaTeX
-
-**PowerShell:** Windows PowerShell 5.1+
-
-**Supported formats:** JPEG, PNG, PDF
-
-**Status:** Successfully tested by the maintainer on Windows with online images, Google Drive images, caching, and automatic cleanup.
-
-Broader compatibility testing and contributions are welcome.
-
----
+- Earlier implementation of URL-based image downloading and Google Drive link support.
+- Replaced by v1.3 for current installations.
 
 ## 👨‍💻 Maintainer
 
-Developed and maintained by **[rafiq1506](https://github.com/rafiq1506)**.
+Maintained by **[rafiq1506](https://github.com/rafiq1506)**.
 
-**Repository:** [my-latex-packages](https://github.com/rafiq1506/my-latex-packages)
+Repository: <https://github.com/rafiq1506/my-latex-packages>
 
----
-
-## ⭐ Support the Project
-
-If you find this package useful, consider starring the repository on GitHub.
-
-Feedback, suggestions, bug reports, and contributions are welcome.
-
-**GitHub:** https://github.com/rafiq1506/my-latex-packages
-
----
-
-*Making LaTeX image management simpler, faster, and more convenient.*
+If this package is useful, consider starring the repository or opening an issue with feedback.
