@@ -248,6 +248,45 @@ Save and compile using that PDFLaTeX profile. Other profiles (such as PDFTeXify)
 
 **Security:** `--shell-escape` allows external commands. Enable it only for trusted documents; the `code` package does not need it.
 
+### WinEdt 11.2: Autocomplete for \`urlfigure\`
+
+You can configure WinEdt 11.2 to expand a partially typed \`\begin{urlf\` into the complete \`urlfigure\` environment with editable placeholders.
+
+1. In WinEdt, open **Options → Options Interface** and locate \`AutoComplete.ini\`.
+2. Find the \`ITEM="LaTeX Environments"\` section. Add this entry before \`END="LaTeX Environments"\` (or replace an existing \`OBJECT="urlfigure"\` entry):
+
+\`\`\`ini
+OBJECT="urlfigure"
+  MACRO="LetReg(-1,!'    \urlimage[0.6\textwidth]{}');"+
+        "LetReg(-1,'%-1%\    \caption{}');"+
+        "LetReg(-1,'%-1%\    \label{}');"+
+        "LetReg(-2,!'');"+
+        "Exe('%b\Macros\Auto Complete\TeXEnv.edt');"
+\`\`\`
+
+3. Save \`AutoComplete.ini\` and click **Load Current Script**.
+4. In a \`.tex\` document, type \`\begin{urlf\`, select **urlfigure** from autocomplete, and press **Enter**.
+
+WinEdt inserts the following template (the \`\` characters are WinEdt's editable placeholder markers, not ordinary LaTeX characters):
+
+\`\`\`latex
+\begin{urlfigure}
+    \urlimage[0.6\textwidth]{}
+    \caption{}
+    \label{}
+\end{urlfigure}
+\`\`\`
+
+Use **Ctrl+Space** to advance to the next placeholder and **Ctrl+Shift+Space** to go back. Replace each placeholder with the image URL, caption, or label before compiling.
+
+To prefill the label prefix, change the third \`LetReg(-1,...)\` line to:
+
+\`\`\`ini
+"LetReg(-1,'%-1%\    \label{fig:}');"+
+\`\`\`
+
+**Notes:** Preserve the placeholder character \`\` when copying the configuration. This setup uses WinEdt's built-in \`TeXEnv.edt\` and does not require any custom \`.edt\` macro. Do not call a standalone \`Ins()\` insertion macro from this autocomplete entry: it can duplicate the environment or leave partially typed text behind.
+
 ### Image caching
 
 On first use, the downloader saves the image under `urlfigure-images/`. Later compilations reuse the cache if the URL and cached format still match. A changed remote image at the same URL may not refresh automatically. To refresh, remove the corresponding cached image and `.cache` metadata, or delete the generated `urlfigure-images/` directory.
