@@ -49,6 +49,26 @@ latex-install urlfigure -Force
 
 Open a new PowerShell window after setup if necessary. Avoid changing your system-wide execution policy merely to run an installer.
 
+### Install `code` directly from GitHub (no manual download)
+
+On another Windows PC with TeX Live or MiKTeX installed, open **PowerShell** and run this single command. It downloads `code.sty` directly from this repository and installs it in your personal TeX directory:
+
+```powershell
+$dir = "$HOME\texmf\tex\latex\code"; New-Item -ItemType Directory -Force -Path $dir | Out-Null; Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rafiq1506/my-latex-packages/main/code.sty" -OutFile "$dir\code.sty"
+```
+
+This assumes `code.sty` is present at the **root of the `main` branch**. The PC needs internet access for installation, but not for using the package afterward. The command replaces any existing `code.sty` at that destination.
+
+Verify that LaTeX can find it:
+
+```powershell
+kpsewhich code.sty
+```
+
+Expected output is a path similar to `C:/Users/YourUsername/texmf/tex/latex/code/code.sty`. If nothing is returned, try refreshing the filename database with `mktexlsr` (TeX Live) or the corresponding MiKTeX refresh command, then verify again.
+
+After installation, add `\usepackage{code}` to your LaTeX document's preamble. You do **not** need to download or copy `code.sty` manually.
+
 ### Install `code` manually (works without installer changes)
 
 Download [`code.sty`](https://github.com/rafiq1506/my-latex-packages/blob/main/code.sty) and save it to your Downloads folder. Then run:
