@@ -1,25 +1,83 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{urlfigure}[2026/10/22 v1.0 URL image figure environment]
+\ProvidesPackage{urlfigure}[2026/10/22 v1.1 URL and public Google Drive figures]
 
 \RequirePackage{float}
 \RequirePackage{graphicx}
 \RequirePackage{shellesc}
 \RequirePackage{environ}
 
+% This helper is written in the working directory when the package loads.
+% It uses Windows PowerShell 5.1, which is available on Windows 10/11.
+\begin{filecontents*}[overwrite]{urlfigure-fetch.ps1}
+param(
+    [Parameter(Mandatory=$true)][string]$Url,
+    [Parameter(Mandatory=$true)][string]$Stem
+)
+$ErrorActionPreference = 'Stop'
+$stemName = [System.IO.Path]::GetFileName($Stem)
+if ($stemName -ne $Stem -or $Stem -notmatch '^urlimage-[0-9]+$') {
+    throw 'Invalid output stem'
+}
+$cwd = (Get-Location).Path
+$status = Join-Path $cwd ($Stem + '.tex')
+$temporary = Join-Path $cwd ($Stem + '.download')
+Remove-Item -LiteralPath $status,$temporary -Force -ErrorAction SilentlyContinue
+foreach ($ext in @('jpg','png','pdf')) {
+    Remove-Item -LiteralPath (Join-Path $cwd ($Stem + '.' + $ext)) -Force -ErrorAction SilentlyContinue
+}
+try {
+    $downloadUrl = $Url
+    $id = $null
+    if ($Url -match '^https://drive\.google\.com/file/d/([A-Za-z0-9_-]+)') {
+        $id = $Matches[1]
+    } elseif ($Url -match '^https://drive\.google\.com/(?:open|uc)\?') {
+        $uri = [Uri]$Url
+        foreach ($part in $uri.Query.TrimStart('?').Split('&')) {
+            if ($part -match '^id=([A-Za-z0-9_-]+)$') { $id = $Matches[1]; break }
+        }
+    }
+    if ($id) {
+        $downloadUrl = 'https://drive.usercontent.google.com/download?id=' + $id + '&export=download&confirm=t'
+    }
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $temporary -UseBasicParsing -MaximumRedirection 10 -ErrorAction Stop
+    $bytes = [System.IO.File]::ReadAllBytes($temporary)
+    $ext = $null
+    if ($bytes.Length -ge 3 -and $bytes[0] -eq 255 -and $bytes[1] -eq 216 -and $bytes[2] -eq 255) {
+        $ext = 'jpg'
+    } elseif ($bytes.Length -ge 8 -and $bytes[0] -eq 137 -and $bytes[1] -eq 80 -and $bytes[2] -eq 78 -and $bytes[3] -eq 71 -and $bytes[4] -eq 13 -and $bytes[5] -eq 10 -and $bytes[6] -eq 26 -and $bytes[7] -eq 10) {
+        $ext = 'png'
+    } elseif ($bytes.Length -ge 5 -and $bytes[0] -eq 37 -and $bytes[1] -eq 80 -and $bytes[2] -eq 68 -and $bytes[3] -eq 70 -and $bytes[4] -eq 45) {
+        $ext = 'pdf'
+    }
+    if (-not $ext) {
+        throw 'The URL returned an unsupported file (possibly an HTML preview or Google Drive confirmation page), not a JPEG, PNG, or PDF.'
+    }
+    $filename = $Stem + '.' + $ext
+    Move-Item -LiteralPath $temporary -Destination (Join-Path $cwd $filename) -Force
+    [System.IO.File]::WriteAllText($status, ('\gdef\urlfigimagefile{' + $filename + '}'), [System.Text.Encoding]::ASCII)
+    Write-Host ('Downloaded: ' + $filename)
+} catch {
+    Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue
+    Write-Error ('urlfigure download failed: ' + $_.Exception.Message)
+    exit 1
+}
+\end{filecontents*}
+
 \newcounter{urlimagecounter}
 \newcommand{\urlimage}[2][0.5\textwidth]{%
   \stepcounter{urlimagecounter}%
-  \edef\urlfigfilename{urlimage-\arabic{urlimagecounter}.jpg}%
-  \ShellEscape{curl.exe -L --fail --silent --show-error -o "\urlfigfilename" "#2"}%
-  \IfFileExists{\urlfigfilename}{%
-    \includegraphics[width=#1]{\urlfigfilename}%
+  \edef\urlfigstem{urlimage-\arabic{urlimagecounter}}%
+  \ShellEscape{powershell.exe -NoProfile -NonInteractive -File "urlfigure-fetch.ps1" -Url "#2" -Stem "\urlfigstem"}%
+  \IfFileExists{\urlfigstem.tex}{%
+    \input{\urlfigstem.tex}%
+    \includegraphics[width=#1]{\urlfigimagefile}%
   }{%
-    \PackageError{urlfigure}{Image download failed: \urlfigfilename}{Check the image URL, internet connection, and --shell-escape setting.}%
+    \PackageError{urlfigure}{Image download failed for \urlfigstem}{Check that the URL is publicly accessible, your network is available, and PDFLaTeX uses --shell-escape. See the PowerShell error in the log.}%
   }%
 }
 
 \NewEnviron{urlfigure}{%
-  \begin{figure}[H]
+  \begin{figure}[H]%
     \centering
     \let\urlfigoriginalcaption\caption
     \let\urlfigoriginallabel\label
