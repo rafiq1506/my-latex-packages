@@ -11,12 +11,32 @@ if ($Stem -notmatch '^urlimage-[0-9]+$') {
 }
 
 $cwd = (Get-Location).Path
+
+# Folder for downloaded images
 $cacheDir = Join-Path $cwd 'urlfigure-images'
 New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null
 
+# Separate folder for cache metadata
+$metadataDir = Join-Path $cacheDir '.metadata'
+New-Item -ItemType Directory -Path $metadataDir -Force | Out-Null
+
+# Hide metadata folder on Windows
+$folder = Get-Item -LiteralPath $metadataDir
+$folder.Attributes = $folder.Attributes -bor [System.IO.FileAttributes]::Hidden
+
+# Temporary LaTeX status file
 $status = Join-Path $cwd ($Stem + '.tex')
-$metadata = Join-Path $cacheDir ($Stem + '.url')
-$temporary = Join-Path $cacheDir ($Stem + '.download')
+
+# Cache metadata and temporary download
+$metadata = Join-Path $metadataDir ($Stem + '.cache')
+$temporary = Join-Path $metadataDir ($Stem + '.download')
+
+# Remove obsolete metadata files from v1.3
+$oldUrl = Join-Path $cacheDir ($Stem + '.url')
+$oldCache = Join-Path $cacheDir ($Stem + '.cache')
+
+Remove-Item -LiteralPath $oldUrl,$oldCache `
+    -Force -ErrorAction SilentlyContinue
 
 function Get-ImageExtension([string]$Path) {
     $bytes = [System.IO.File]::ReadAllBytes($Path)
