@@ -13,10 +13,11 @@
   \stepcounter{urlimagecounter}%
   \edef\urlfigstem{urlimage-\arabic{urlimagecounter}}%
   \ShellEscape{powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "$p = kpsewhich -format=tex urlfigure-fetch-v13.ps1; if (-not $p) { exit 1 }; & $p -Url '#2' -Stem '\urlfigstem'"}%
-  \IfFileExists{\urlfigstem.tex}{%
+\IfFileExists{\urlfigstem.tex}{%
     \input{\urlfigstem.tex}%
     \includegraphics[width=#1]{\urlfigimagefile}%
-  }{%
+    \ShellEscape{powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Remove-Item -LiteralPath '\urlfigstem.tex' -Force -ErrorAction SilentlyContinue"}%
+}{%
     \PackageError{urlfigure}
       {Image download failed for \urlfigstem}
       {Check URL, internet, helper installation and shell-escape.}%
