@@ -1,0 +1,36 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{urlfigure}[2026/10/22 v1.0 URL image figure environment]
+
+\RequirePackage{float}
+\RequirePackage{graphicx}
+\RequirePackage{shellesc}
+\RequirePackage{environ}
+
+\newcounter{urlimagecounter}
+\newcommand{\urlimage}[2][0.5\textwidth]{%
+  \stepcounter{urlimagecounter}%
+  \edef\urlfigfilename{urlimage-\arabic{urlimagecounter}.jpg}%
+  \ShellEscape{curl.exe -L --fail --silent --show-error -o "\urlfigfilename" "#2"}%
+  \IfFileExists{\urlfigfilename}{%
+    \includegraphics[width=#1]{\urlfigfilename}%
+  }{%
+    \PackageError{urlfigure}{Image download failed: \urlfigfilename}{Check the image URL, internet connection, and --shell-escape setting.}%
+  }%
+}
+
+\NewEnviron{urlfigure}{%
+  \begin{figure}[H]
+    \centering
+    \let\urlfigoriginalcaption\caption
+    \let\urlfigoriginallabel\label
+    \def\urlfigcaptiontext{}%
+    \def\urlfiglabeltext{}%
+    \renewcommand{\caption}[1]{\def\urlfigcaptiontext{##1}}%
+    \renewcommand{\label}[1]{\def\urlfiglabeltext{##1}}%
+    \BODY
+    \let\caption\urlfigoriginalcaption
+    \let\label\urlfigoriginallabel
+    \caption{\urlfigcaptiontext}%
+    \ifx\urlfiglabeltext\empty\else\label{\urlfiglabeltext}\fi
+  \end{figure}%
+}
