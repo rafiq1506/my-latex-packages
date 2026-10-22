@@ -21,8 +21,16 @@ $metadataDir = Join-Path $cacheDir '.metadata'
 New-Item -ItemType Directory -Path $metadataDir -Force | Out-Null
 
 # Hide metadata folder on Windows
-$folder = Get-Item -LiteralPath $metadataDir
-$folder.Attributes = $folder.Attributes -bor [System.IO.FileAttributes]::Hidden
+try {
+    $folder = Get-Item -LiteralPath $metadataDir -Force -ErrorAction Stop
+
+    if (-not ($folder.Attributes -band [System.IO.FileAttributes]::Hidden)) {
+        $folder.Attributes = $folder.Attributes -bor [System.IO.FileAttributes]::Hidden
+    }
+}
+catch {
+    Write-Warning "Unable to hide metadata folder: $($_.Exception.Message)"
+}
 
 # Temporary LaTeX status file
 $status = Join-Path $cwd ($Stem + '.tex')
