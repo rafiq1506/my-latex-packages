@@ -50,7 +50,15 @@ try {
     }
     if (-not $ext) { throw ('No endpoint returned a valid JPEG, PNG, or PDF. ' + $lastError) }
     $filename = $Stem + '.' + $ext
-    Move-Item -LiteralPath $temporary -Destination (Join-Path $cwd $filename) -Force
+    $destination = Join-Path $cwd $filename
+
+    # Remove any existing image before moving the new one
+    if (Test-Path -LiteralPath $destination) {
+        Remove-Item -LiteralPath $destination -Force -ErrorAction Stop
+    }
+
+# Move downloaded image to its final filename
+[System.IO.File]::Move($temporary, $destination)
     [System.IO.File]::WriteAllText($status, ('\gdef\urlfigimagefile{' + $filename + '}'), [System.Text.Encoding]::ASCII)
     Write-Host ('Downloaded: ' + $filename)
 } catch {
